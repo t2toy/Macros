@@ -1,0 +1,8 @@
+waitForUser("Select the window of the stack that you want to study"); 
+selectWindow();
+run("Z Project...", "projection=[Standard Deviation]");
+selectWindow("");
+run("Z Project...", "projection=[Average Intensity]");
+selectWindow("gain 12 from 7");
+
+

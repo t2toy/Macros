@@ -1,0 +1,2 @@
+run("Close All"); 
+

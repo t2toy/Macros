@@ -1,0 +1,71 @@
+// convert into tif stack from system files.
+
+mainDir = getDirectory("Choose a main directory "); 
+mainList = getFileList(mainDir); 
+
+output1 = getDirectory("Output directory for montages");
+output2 = getDirectory("Output directory for tifs");
+begin=1;
+stim_start=50;
+stim_end=80;
+end=130;
+upper=255; 
+roll = 50;
+
+labels = newArray("Standard Deviation", "Average Intensity", "Maximum Intensity projection");
+Dialog.create("Z projection");
+Dialog.addChoice("mode",labels);
+Dialog.show();
+mode = Dialog.getChoice();
+
+for (i=0; i<mainList.length; i++) 
+{  
+if(endsWith(mainList[i], "/"))
+{   // if the name is a subfolder... 
+
+          subDir = mainDir + mainList[i]; 
+          subList = getFileList(subDir);  		  
+		  open(subDir);
+//doCommand("Start Animation [\\]");
+
+StackTitle = getTitle();
+// blank period
+
+selectWindow(StackTitle);
+run("Z Project...", "start=begin stop=stim_start projection=[mode]");
+run("8-bit");
+run("Subtract Background...", "rolling=roll");
+
+// stimulus period
+
+selectWindow(StackTitle);
+run("Z Project...", "start=stim_start stop=stim_end projection=[mode]");
+run("8-bit");
+run("Subtract Background...", "rolling=roll");
+
+// post stim
+
+selectWindow(StackTitle);
+run("Z Project...", "start=stim_end stop=end projection=[mode]");
+run("8-bit");
+run("Subtract Background...", "rolling=roll");
+
+//make montage
+run("Images to Stack", "name=Stack title=[] use");
+run("Make Montage...", "columns=3 rows=1 scale=1");
+run("Enhance Contrast...", "saturated=0.3");
+
+saveAs("Tiff", output1+"\\"+StackTitle +" "+mode+ "_montage.tif");
+
+//saving whole stack as tif
+selectWindow(StackTitle);
+saveAs("Tiff", output2+"\\"+StackTitle +"stack.tif");
+
+run("Close All"); 
+} 
+} 
+
+
+
+
+
